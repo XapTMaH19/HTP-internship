@@ -13,7 +13,7 @@ using std::unordered_map;
 using std::shared_ptr;
 
 // Структура, представляющая студента
-struct Student 
+struct Student
 {
     size_t id;
     string name;
@@ -25,7 +25,7 @@ private:
     // Контейнер для хранения студентов
     std::unordered_map<int, shared_ptr<Student>> students;
     // Базовый мьютекс для синхронизации доступа к базе данных
-    std::mutex mutex; 
+    std::mutex mutex;
 
 public:
 
@@ -39,7 +39,7 @@ public:
     }
 
     // Удаление студента по идентификатору
-    void RemoveStudent(size_t id) 
+    void RemoveStudent(size_t id)
     {
         std::lock_guard<std::mutex> lock(mutex);
 
@@ -48,11 +48,11 @@ public:
     }
 
     // Получение информации о студенте по идентификатору
-    std::shared_ptr<Student> getStudentById(int id) 
+    std::shared_ptr<Student> GetStudentById(int id)
     {
-        std::lock_guard<std::mutex> lock(mutex); 
+        std::lock_guard<std::mutex> lock(mutex);
         auto it = students.find(id);
-        if (it != students.end()) 
+        if (it != students.end())
         {
             return it->second;
         }
@@ -62,7 +62,7 @@ public:
     }
 
     // Вспомогательная функция для отображения информации о студенте
-    void OutStudent(const std::shared_ptr<Student>& student) 
+    void OutStudent(const std::shared_ptr<Student>& student)
     {
         // для красивого выводы
         std::lock_guard<std::mutex> lock(mutex);
@@ -77,34 +77,38 @@ public:
 };
 
 // Функция для демонстрации работы с базой данных в разных потоках
-void databaseDemo(StudentDatabase& db) {
+void DataBaseDemo(StudentDatabase& db)
+{
     // Добавление студентов в базу данных
     db.AddStudent(1, "Анастасия", 20);
     db.AddStudent(2, "Артём", 22);
     db.AddStudent(3, "Соня", 21);
 
     // Получение информации о студенте по идентификатору
-    std::shared_ptr<Student> student = db.getStudentById(2);
+    std::shared_ptr<Student> student = db.GetStudentById(2);
     db.OutStudent(student);
 
     // Удаление студента по идентификатору
     db.RemoveStudent(2);
     db.RemoveStudent(4);
-    student = db.getStudentById(1);
+    student = db.GetStudentById(1);
     db.OutStudent(student);
-    student = db.getStudentById(2);
+    student = db.GetStudentById(2);
     db.OutStudent(student);
-    student = db.getStudentById(3);
+    student = db.GetStudentById(3);
     db.OutStudent(student);
 
 }
 
-int main() {
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+
     StudentDatabase db;
 
     // Создание двух потоков для демонстрации работы с базой данных в разных потоках
-    std::thread thread1(databaseDemo, std::ref(db));
-    std::thread thread2(databaseDemo, std::ref(db));
+    std::thread thread1(DataBaseDemo, std::ref(db));
+    std::thread thread2(DataBaseDemo, std::ref(db));
 
     // Ожидание завершения работы потоков
     thread1.join();
